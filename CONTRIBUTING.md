@@ -51,6 +51,18 @@ There are **no strict formatting requirements**, but please try to:
 
 **Remember: these are meant to be small games.**
 
+### Duplicate Games
+
+Before contributing a game, please check whether a similar game already exists in the repository.
+
+Duplicate implementations of the same game are generally discouraged unless they are meaningfully different. Examples of acceptable differences include:
+
+* A different **interface** (e.g. `cli/snake.py` vs `pygame/snake.py`)
+* A significantly different **gameplay style or mechanics**
+* A **clearly improved or expanded** version
+
+If your version is only a small variation of an existing game, consider **improving the existing file instead**.
+
 ## Modifying an Existing File
 
 Modifications to existing games are allowed, but should generally be limited to:
