@@ -1,4 +1,3 @@
-# Contributing
 Thanks for contributing to **Small Games Python**!
 
 This repository is a collection of **small Python games and remakes**, so please keep contributions simple and follow the guidelines below.
