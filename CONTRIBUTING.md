@@ -3,15 +3,16 @@ Thanks for contributing to **Small Games Python**!
 
 This repository is a collection of **small Python games and remakes**, so please keep contributions simple and follow the guidelines below.
 
-## Game Requirements
+## Contributing a Game
 Games must follow the definition of **small** used in this repository:
 
 * A game may require **no more than 3 files**
 * Extra files should only exist when necessary (for example: word lists or small data files)
+* Only the **main file** will be put into the repository.
 
 Try to keep the code **simple, readable, and self-contained**.
 
-## Interfaces
+### Interfaces
 Games are organized by **interface**.
 Place your game in the correct directory.
 
@@ -22,7 +23,7 @@ Examples include:
 
 If your game uses a new interface that doesn't exist yet, or isn't listed in the repository, you may create an issue for it.
 
-## Naming
+### Naming
 * Use **lowercase filenames**, words separated by underscores if needed.
 * Prefer **descriptive names**
 
@@ -33,7 +34,7 @@ pygame/snake.py
 pygame/lights_out.py
 ```
 
-## Dependencies
+### Dependencies
 Try to **avoid unnecessary dependencies**.
 
 If your game requires an external library (such as pygame), it should:
@@ -41,7 +42,7 @@ If your game requires an external library (such as pygame), it should:
 * **Be common and easy to install**
 * **Be listed in a comment if needed**
 
-## Code Style
+### Code Style
 There are **no strict formatting requirements**, but please try to:
 
 * Write readable code
@@ -49,6 +50,19 @@ There are **no strict formatting requirements**, but please try to:
 * Avoid extremely large or complex programs
 
 **Remember: these are meant to be small games.**
+
+## Modifying an Existing File
+
+Modifications to existing games are allowed, but should generally be limited to:
+
+* **Bug fixes**
+* **Small improvements** (performance, readability, minor features)
+* **Compatibility fixes** (library updates, Python version issues)
+* **Documentation or comment improvements**
+
+Please **avoid completely rewriting or heavily restructuring someone else's game** unless it is necessary to fix a problem. If a large change is needed, it is recommended to **open an issue first** to discuss it.
+
+All changes should keep the game **small and simple**, following the same requirements listed above.
 
 ## Submitting
 1. Fork the repository
