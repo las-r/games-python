@@ -78,7 +78,6 @@ while run:
     by += bdy * bspeed
     if not BHB <= by <= HEIGHT - BHB:
         bdy = -bdy
-        
     if P1X - PHBX - BHB <= bx <= P1X + PHBX + BHB and p1 - PHBY <= by <= p1 + PHBY:
         if not bp:
             bdx = -bdx
@@ -91,7 +90,6 @@ while run:
             bp = True
     else:
         bp = False
-        
     if bx <= BHB:
         p2s += 1
         pygame.time.wait(1000)
