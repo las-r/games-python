@@ -3,6 +3,7 @@ import random
 
 # minesweeper
 # made by las-r on github
+# v1.1
 
 # init
 pygame.init()
@@ -12,9 +13,9 @@ largefont = pygame.font.Font(None, 70)
 numfont = pygame.font.Font(None, 45)
 
 # settings
-WIDTH, HEIGHT = 450, 450
-BWIDTH, BHEIGHT = 9, 9
-MINES = 10
+WIDTH, HEIGHT = 1200, 640
+BWIDTH, BHEIGHT = 30, 16
+MINES = 99
 TWIDTH, THEIGHT = WIDTH // BWIDTH, HEIGHT // BHEIGHT
 
 # colors
@@ -160,9 +161,9 @@ while run:
             if state == "lose" or debug:
                 if (x, y) in mines:
                     pygame.draw.ellipse(scr, MINECOL, pygame.Rect(x * TWIDTH, y * THEIGHT, TWIDTH, THEIGHT))
-    for x in range(BWIDTH):
+    for x in range(1, BWIDTH):
         pygame.draw.line(scr, LINECOL, (x * TWIDTH, 0), (x * TWIDTH, HEIGHT))
-    for y in range(BHEIGHT):
+    for y in range(1, BHEIGHT):
         pygame.draw.line(scr, LINECOL, (0, y * THEIGHT), (WIDTH, y * THEIGHT))
     if debug:
         pygame.draw.rect(scr, DEBUGCOL, pygame.Rect(tx * TWIDTH, ty * THEIGHT, TWIDTH, THEIGHT), 2)
