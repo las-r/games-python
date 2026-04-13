@@ -4,7 +4,7 @@ import random
 
 # 2.5d maze runner
 # made by las-r on github
-# v1.2
+# v1.3
 
 # init
 pygame.init()
@@ -17,7 +17,6 @@ HW, HH = WIDTH // 2, HEIGHT // 2
 MSIZE = 25
 MJANK = 10
 TSIZE = (WIDTH // 2) // MSIZE
-RAYS = HEIGHT
 MXDEPTH = 200
 FALLOFF = 0.5
 
@@ -82,10 +81,11 @@ setup()
 text = True
 noclip = False
 fisheye = False
+rays = WIDTH // 2
 fovd = 70
 fov = (fovd * math.pi) / 180
 hfov = fov / 2
-step = fov / RAYS
+step = fov / rays
 
 # main loop
 run = True
@@ -141,12 +141,20 @@ while run:
         fovd -= 1
         fov = (fovd * math.pi) / 180
         hfov = fov / 2
-        step = fov / RAYS
+        step = fov / rays
     if keys[pygame.K_EQUALS]:
         fovd += 1
         fov = (fovd * math.pi) / 180
         hfov = fov / 2
-        step = fov / RAYS
+        step = fov / rays
+        
+    # rays changing
+    if keys[pygame.K_COMMA]:
+        rays -= 1
+        step = fov / rays
+    if keys[pygame.K_PERIOD]:
+        rays += 1
+        step = fov / rays
     
     # draw maze
     scr.fill(BGCOL)
@@ -157,7 +165,7 @@ while run:
                 
     # draw rays
     sang = pang - hfov
-    for ray in range(RAYS):
+    for ray in range(rays):
         cosr = math.cos(sang)
         sinr = math.sin(sang)
         deltax = abs(1 / cosr) if cosr != 0 else 1e30
@@ -208,9 +216,9 @@ while run:
         brightness = 1 / (1 + (perpdist * perpdist * FALLOFF))
         color = (MZCOL[0] * brightness, MZCOL[1] * brightness, MZCOL[2] * brightness)
         pygame.draw.rect(scr, color, ( #type:ignore
-            HW + ray * (HW / RAYS), 
+            HW + ray * (HW / rays), 
             HH - wallh // 2, 
-            (HW / RAYS) + 1, 
+            (HW / rays) + 1, 
             wallh
         ))
         sang += step
@@ -227,6 +235,7 @@ while run:
         scr.blit(font.render(f"FOV: {fovd}", True, TXCOL), (HW + 5, 50))
         scr.blit(font.render(f"Noclip: {noclip}", True, TXCOL), (HW + 5, 65))
         scr.blit(font.render(f"Fisheye distortion: {fisheye}", True, TXCOL), (HW + 5, 80))
+        scr.blit(font.render(f"Rays: {rays}", True, TXCOL), (HW + 5, 95))
     
     # frame rate
     pygame.display.flip()
