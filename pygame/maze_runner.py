@@ -4,7 +4,7 @@ import random
 
 # 2.5d maze runner
 # made by las-r on github
-# v1.1
+# v1.2
 
 # init
 pygame.init()
@@ -17,12 +17,9 @@ HW, HH = WIDTH // 2, HEIGHT // 2
 MSIZE = 25
 MJANK = 10
 TSIZE = (WIDTH // 2) // MSIZE
-FOVD = 70
-FOV = (FOVD * math.pi) / 180
-HFOV = FOV / 2
-RAYS = 120
-STEP = FOV / RAYS
+RAYS = HEIGHT
 MXDEPTH = 200
+FALLOFF = 0.5
 
 # colors
 BGCOL = (0, 0, 0)
@@ -82,8 +79,13 @@ pygame.display.set_caption("2.5D Maze Runner")
 setup()
 
 # other variables
-text = False
+text = True
 noclip = False
+fisheye = False
+fovd = 70
+fov = (fovd * math.pi) / 180
+hfov = fov / 2
+step = fov / RAYS
 
 # main loop
 run = True
@@ -98,29 +100,53 @@ while run:
         if e.type == pygame.KEYDOWN:
             if e.key == pygame.K_r:
                 setup()
-            if e.key == pygame.K_t:
+            elif e.key == pygame.K_f:
+                pang += math.pi
+            elif e.key == pygame.K_t:
                 text = not text
-            if e.key == pygame.K_n:
+            elif e.key == pygame.K_1:
                 noclip = not noclip
+            elif e.key == pygame.K_2:
+                fisheye = not fisheye
             
-    # input
+    # player movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         pang = (pang - rspd) % (2 * math.pi)
     if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         pang = (pang + rspd) % (2 * math.pi)
     if keys[pygame.K_w] or keys[pygame.K_UP]:
-        nx = px + math.cos(pang) * mspd
-        ny = py + math.sin(pang) * mspd
-        if not (0 < nx < TSIZE * MSIZE and 0 < ny < TSIZE * MSIZE):
-            setup()
-        if (not maze[int(ny / TSIZE)][int(nx / TSIZE)] or noclip):
-            px, py = nx, ny
+        dx = math.cos(pang) * mspd
+        dy = math.sin(pang) * mspd
+        nx = px + dx
+        if not maze[int(py / TSIZE)][int(nx / TSIZE)] or noclip:
+            px = nx
+        ny = py + dy
+        if not maze[int(ny / TSIZE)][int(px / TSIZE)] or noclip:
+            py = ny
     if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        nx = px - math.cos(pang) * mspd
-        ny = py - math.sin(pang) * mspd
-        if (not maze[int(ny / TSIZE)][int(nx / TSIZE)] or noclip):
-            px, py = nx, ny
+        dx = -math.cos(pang) * mspd
+        dy = -math.sin(pang) * mspd
+        nx = px + dx
+        if not maze[int(py / TSIZE)][int(nx / TSIZE)] or noclip:
+            px = nx
+        ny = py + dy
+        if not maze[int(ny / TSIZE)][int(px / TSIZE)] or noclip:
+            py = ny
+    px = max(TSIZE, min((MSIZE - 1) * TSIZE, px))
+    py = max(0, min((MSIZE - 1) * TSIZE, py))
+    
+    # fov changing
+    if keys[pygame.K_MINUS]:
+        fovd -= 1
+        fov = (fovd * math.pi) / 180
+        hfov = fov / 2
+        step = fov / RAYS
+    if keys[pygame.K_EQUALS]:
+        fovd += 1
+        fov = (fovd * math.pi) / 180
+        hfov = fov / 2
+        step = fov / RAYS
     
     # draw maze
     scr.fill(BGCOL)
@@ -130,29 +156,64 @@ while run:
                 pygame.draw.rect(scr, MZCOL, (x * TSIZE, y * TSIZE, TSIZE - 1, TSIZE - 1))
                 
     # draw rays
-    sang = pang - HFOV
+    sang = pang - hfov
     for ray in range(RAYS):
-        cosr, sinr = math.cos(sang), math.sin(sang)
-        for depth in range(1, MXDEPTH * TSIZE, 2):
-            tx = px + cosr * depth
-            ty = py + sinr * depth
-            gx, gy = int(tx / TSIZE), int(ty / TSIZE)
-            if 0 <= gx < MSIZE and 0 <= gy < MSIZE:
-                if maze[gy][gx]:
-                    dist = depth * math.cos(sang - pang)
-                    pygame.draw.line(scr, RYCOL, (px, py), (tx, ty))
-                    wall_h = (TSIZE * 320) / (dist + 0.1)
-                    c = 1 + dist * dist * (TSIZE / 16000)
-                    pygame.draw.rect(scr, (MZCOL[0] // c, MZCOL[1] // c, MZCOL[2] // c), ( #type:ignore
-                        HW + ray * (HW / RAYS), 
-                        HH - wall_h // 2, 
-                        (HW / RAYS) + 1, 
-                        wall_h
-                    ))
-                    break
+        cosr = math.cos(sang)
+        sinr = math.sin(sang)
+        deltax = abs(1 / cosr) if cosr != 0 else 1e30
+        deltay = abs(1 / sinr) if sinr != 0 else 1e30
+        mapx = int(px / TSIZE)
+        mapy = int(py / TSIZE)
+        if cosr < 0:
+            stepx = -1
+            sidedistx = (px / TSIZE - mapx) * deltax
+        else:
+            stepx = 1
+            sidedistx = (mapx + 1.0 - px / TSIZE) * deltax
+        if sinr < 0:
+            stepy = -1
+            sidedisty = (py / TSIZE - mapy) * deltay
+        else:
+            stepy = 1
+            sidedisty = (mapy + 1.0 - py / TSIZE) * deltay
+        hit = 0
+        side = 0
+        while hit == 0:
+            if sidedistx < sidedisty:
+                sidedistx += deltax
+                mapx += stepx
+                side = 0
+            else:
+                sidedisty += deltay
+                mapy += stepy
+                side = 1
+            if 0 <= mapx < MSIZE and 0 <= mapy < MSIZE:
+                if maze[mapy][mapx] > 0:
+                    hit = 1
             else:
                 break
-        sang += STEP
+        if side == 0:
+            perpdist = (sidedistx - deltax)
+        else:
+            perpdist = (sidedisty - deltay)
+        dist = perpdist * TSIZE
+        tx = px + cosr * dist
+        ty = py + sinr * dist
+        pygame.draw.line(scr, RYCOL, (px, py), (tx, ty))
+        if fisheye:
+            correctdist = dist
+        else:
+            correctdist = dist * math.cos(sang - pang)
+        wallh = (TSIZE * 300) / (correctdist + 0.1)
+        brightness = 1 / (1 + (perpdist * perpdist * FALLOFF))
+        color = (MZCOL[0] * brightness, MZCOL[1] * brightness, MZCOL[2] * brightness)
+        pygame.draw.rect(scr, color, ( #type:ignore
+            HW + ray * (HW / RAYS), 
+            HH - wallh // 2, 
+            (HW / RAYS) + 1, 
+            wallh
+        ))
+        sang += step
     
     # draw player
     pygame.draw.circle(scr, PLRCOL, (int(px), int(py)), TSIZE // 2 - 4)
@@ -160,10 +221,12 @@ while run:
     
     # text
     if text:
-        scr.blit(font.render(f"Player X: {round(px, 4)}", True, TXCOL), (5, 5))
-        scr.blit(font.render(f"Player Y: {round(py, 4)}", True, TXCOL), (5, 20))
-        scr.blit(font.render(f"Player angle: {round(pang * 180 / math.pi, 4)}", True, TXCOL), (5, 35))
-        scr.blit(font.render(f"Noclip: {noclip}", True, TXCOL), (5, 50))
+        scr.blit(font.render(f"Player X: {round(px, 4)}", True, TXCOL), (HW + 5, 5))
+        scr.blit(font.render(f"Player Y: {round(py, 4)}", True, TXCOL), (HW + 5, 20))
+        scr.blit(font.render(f"Player angle: {round(pang * 180 / math.pi, 4)}", True, TXCOL), (HW + 5, 35))
+        scr.blit(font.render(f"FOV: {fovd}", True, TXCOL), (HW + 5, 50))
+        scr.blit(font.render(f"Noclip: {noclip}", True, TXCOL), (HW + 5, 65))
+        scr.blit(font.render(f"Fisheye distortion: {fisheye}", True, TXCOL), (HW + 5, 80))
     
     # frame rate
     pygame.display.flip()
