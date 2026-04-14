@@ -17,6 +17,7 @@ Games are organized by user interface type. Each folder contains games that use 
 Current categories:
 - [Command-Line](https://github.com/las-r/small-games-python/tree/main/cli)
 - [Pygame](https://github.com/las-r/small-games-python/tree/main/pygame)
+- [Raylib](https://github.com/las-r/small-games-python/tree/main/raylib)
 
 ### How can I contribute?
 Check the [guidelines](https://github.com/las-r/small-games-python/blob/main/CONTRIBUTING.md).
