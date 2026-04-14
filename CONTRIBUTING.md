@@ -15,10 +15,12 @@ Try to keep the code **simple, readable, and self-contained**.
 Games are organized by **interface**.
 Place your game in the correct directory.
 
+**IMPORTANT NOTE:** Please check the README's list of categories for notes detailing the category-specific guidelines, if it has any.
+
 Examples include:
 * `cli` – terminal / command-line games
 * `pygame` – games using pygame
-* `arcade` – games using the arcade library
+* `raylib` – games using raylib
 
 If your game uses a new interface that doesn't exist yet, or isn't listed in the repository, you may create an issue for it.
 
