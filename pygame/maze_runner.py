@@ -4,7 +4,7 @@ import random
 
 # 2.5d maze runner
 # made by las-r on github
-# v1.3
+# v1.4
 
 # init
 pygame.init()
@@ -86,6 +86,7 @@ fovd = 70
 fov = (fovd * math.pi) / 180
 hfov = fov / 2
 step = fov / rays
+rscale = 1.0
 
 # main loop
 run = True
@@ -108,6 +109,20 @@ while run:
                 noclip = not noclip
             elif e.key == pygame.K_2:
                 fisheye = not fisheye
+            elif e.key == pygame.K_EQUALS:
+                rscale = max(0, round(rscale + 0.1, 1))
+            elif e.key == pygame.K_MINUS:
+                rscale = max(0, round(rscale - 0.1, 1))
+                
+        # mouse events
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            if e.button == 4:
+                fovd += 1
+            elif e.button == 5:
+                fovd -= 1
+            fov = (fovd * math.pi) / 180
+            hfov = fov / 2
+            step = fov / rays
             
     # player movement
     keys = pygame.key.get_pressed()
@@ -135,25 +150,13 @@ while run:
             py = ny
     px = max(TSIZE, min((MSIZE - 1) * TSIZE, px))
     py = max(0, min((MSIZE - 1) * TSIZE, py))
-    
-    # fov changing
-    if keys[pygame.K_MINUS]:
-        fovd -= 1
-        fov = (fovd * math.pi) / 180
-        hfov = fov / 2
-        step = fov / rays
-    if keys[pygame.K_EQUALS]:
-        fovd += 1
-        fov = (fovd * math.pi) / 180
-        hfov = fov / 2
-        step = fov / rays
         
     # rays changing
     if keys[pygame.K_COMMA]:
-        rays -= 1
+        rays = max(1, min(HW, rays - 1))
         step = fov / rays
     if keys[pygame.K_PERIOD]:
-        rays += 1
+        rays = max(1, min(HW, rays + 1))
         step = fov / rays
     
     # draw maze
@@ -163,8 +166,12 @@ while run:
             if maze[y][x]:
                 pygame.draw.rect(scr, MZCOL, (x * TSIZE, y * TSIZE, TSIZE - 1, TSIZE - 1))
                 
-    # draw rays
+    # scaled render surface
+    rsurf = pygame.Surface((HW * rscale, HEIGHT * rscale))
+    rsurf.fill(BGCOL)
     sang = pang - hfov
+    
+    # draw rays
     for ray in range(rays):
         cosr = math.cos(sang)
         sinr = math.sin(sang)
@@ -212,16 +219,20 @@ while run:
             correctdist = dist
         else:
             correctdist = dist * math.cos(sang - pang)
-        wallh = (TSIZE * 300) / (correctdist + 0.1)
+        wallh = (TSIZE * 300) / (correctdist + 0.1) * rscale
         brightness = 1 / (1 + (perpdist * perpdist * FALLOFF))
         color = (MZCOL[0] * brightness, MZCOL[1] * brightness, MZCOL[2] * brightness)
-        pygame.draw.rect(scr, color, ( #type:ignore
-            HW + ray * (HW / rays), 
-            HH - wallh // 2, 
-            (HW / rays) + 1, 
+        pygame.draw.rect(rsurf, color, ( #type:ignore
+            (ray * (HW / rays)) * rscale,
+            (HEIGHT * rscale) // 2 - wallh // 2,
+            (HW / rays) * rscale + 1,
             wallh
         ))
         sang += step
+    
+    # blit scaled render
+    srend = pygame.transform.smoothscale(rsurf, (HW, HEIGHT))
+    scr.blit(srend, (HW, 0))
     
     # draw player
     pygame.draw.circle(scr, PLRCOL, (int(px), int(py)), TSIZE // 2 - 4)
@@ -236,6 +247,8 @@ while run:
         scr.blit(font.render(f"Noclip: {noclip}", True, TXCOL), (HW + 5, 65))
         scr.blit(font.render(f"Fisheye distortion: {fisheye}", True, TXCOL), (HW + 5, 80))
         scr.blit(font.render(f"Rays: {rays}", True, TXCOL), (HW + 5, 95))
+        scr.blit(font.render(f"Render scale (SSAA): {rscale}", True, TXCOL), (HW + 5, 110))
+        scr.blit(font.render(f"FPS: {clk.get_fps()}", True, TXCOL), (HW + 5, 125))
     
     # frame rate
     pygame.display.flip()
