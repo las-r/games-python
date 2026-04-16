@@ -3,10 +3,11 @@ from pyray import * #type:ignore
 
 # conway's game of life
 # made by las-r on github
+# v1.1
 
 # settings
 WIDTH, HEIGHT = 800, 600
-BWIDTH, BHEIGHT = 40, 30
+BWIDTH, BHEIGHT = 160, 120
 TWIDTH, THEIGHT = WIDTH // BWIDTH, HEIGHT // BHEIGHT
 
 # other constants
@@ -43,10 +44,13 @@ def nextgen(board):
 
 # variables
 frames = 0
+time = 0
 board = [[False for _ in range(BWIDTH)] for _ in range(BHEIGHT)]
+text = True
 fpg = 6
 paused = True
 grid = True
+pop = 0
 
 # main loop
 while not window_should_close():
@@ -55,6 +59,9 @@ while not window_should_close():
     # key input
     if is_key_pressed(KeyboardKey.KEY_R):
         board = [[False for _ in range(BWIDTH)] for _ in range(BHEIGHT)]
+        time = 0
+    if is_key_pressed(KeyboardKey.KEY_T):
+        text = not text
     if is_key_pressed(KeyboardKey.KEY_G):
         grid = not grid
     if is_key_pressed(KeyboardKey.KEY_SPACE):
@@ -77,14 +84,17 @@ while not window_should_close():
     if not paused:
         if not frames % fpg:
             board = nextgen(board)
+            time += 1
         
     # draw board
     begin_drawing()
     clear_background(BLACK)
+    pop = 0
     for y, row in enumerate(board):
         for x, cell in enumerate(row):
             if cell:
                 draw_rectangle(x * TWIDTH, y * THEIGHT, TWIDTH, THEIGHT, WHITE)
+                pop += 1
                 
     # draw grid
     if grid:
@@ -97,9 +107,12 @@ while not window_should_close():
     draw_rectangle_lines(mx * TWIDTH, my * THEIGHT, TWIDTH, THEIGHT, PURPLE)
                 
     # text
-    draw_text(f"Paused: {paused}", 5, 5, 20, PURPLE)
-    draw_text(f"Frames per generation: {fpg}", 5, 30, 20, PURPLE)
-    draw_text(f"Hovered: {mx, my}", 5, 55, 20, PURPLE)
+    if text:
+        draw_text(f"Paused: {paused}", 5, 5, 20, PURPLE)
+        draw_text(f"Frames per generation: {fpg}", 5, 30, 20, PURPLE)
+        draw_text(f"Hovered: {mx, my}", 5, 55, 20, PURPLE)
+        draw_text(f"Time: {time}", 5, 80, 20, PURPLE)
+        draw_text(f"Population: {pop}", 5, 105, 20, PURPLE)
     end_drawing()
 
 # close
