@@ -5,7 +5,7 @@ This repository is a collection of **small Python games and remakes**, so please
 ## Contributing a Game
 Games must follow the definition of **small** used in this repository:
 
-* A game may require **no more than 5 files, including the main file**
+* A game may require **no more than 3 files, including the main file**
 * Extra files should only exist when necessary (for example: word lists or small data files)
 * Only the **main file** will be put into the repository.
 
