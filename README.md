@@ -4,7 +4,7 @@ A collection of small games and game remakes written in Python.
 The goal of this repository is to provide **simple, readable, and beginner-friendly** implementations of games. Each game is intentionally kept small so that the code is **easy to understand, modify, and learn from**.
 
 ### What does "Small" mean?
-Small means **≤5 files required**. Most games should only be a single file.
+Small means **≤3 files required**. Most games should only be a single file.
 
 Additional files **only exist when necessary**, such as: 
 - Word lists for guessing games
