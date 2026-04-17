@@ -3,6 +3,7 @@ import random
 
 # blackjack
 # made by las-r on github
+# v1.0.1
 
 # constants
 RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
@@ -10,7 +11,7 @@ VALS = {r: (10 if r in ("J", "Q", "K", "10") else (11 if r == "A" else int(r))) 
 
 # helpers
 def clear():
-    os.system("cls" if os.name == "nt" else "clear")\
+    os.system("cls" if os.name == "nt" else "clear")
 def score(hand):
     score = sum(VALS[card] for card in hand)
     aces = hand.count("A")
