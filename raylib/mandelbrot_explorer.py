@@ -4,6 +4,9 @@ from numba import njit
 # mandelbrot set explorer
 # made by las-r on github
 
+# NUMBA IS OPTIONAL, BUT EXTREMELY RECOMMENDED
+# IF YOU WANT TO GET RID OF IT, REMOVE THE IMPORT AND FUNCTION HEADING
+
 # settings
 WIDTH, HEIGHT = 800, 450
 BOUND = 2
