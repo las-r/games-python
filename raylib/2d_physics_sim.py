@@ -1,5 +1,4 @@
 from pyray import * #type:ignore
-import math
 import random
 
 # 2d physics sim
